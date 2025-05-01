@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>10 Timers in 5x2 Grid</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f0f0f0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(2, auto);
+      gap: 20px;
+      padding: 20px;
+    }
+    .timer {
+      background: #ffffff;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .title-input {
+      font-size: 16px;
+      padding: 4px 8px;
+      margin-bottom: 10px;
+      width: 100%;
+      box-sizing: border-box;
+      text-align: center;
+    }
+    .time {
+      font-size: 20px;
+      margin-bottom: 10px;
+      font-variant-numeric: tabular-nums;
+    }
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    button {
+      padding: 6px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid" id="timersContainer"></div>
+
+  <script>
+    const container = document.getElementById('timersContainer');
+
+    for (let i = 0; i < 10; i++) {
+      const timer = document.createElement('div');
+      timer.className = 'timer';
+
+      // Title input
+      const titleInput = document.createElement('input');
+      titleInput.type = 'text';
+      titleInput.placeholder = 'Timer Title';
+      titleInput.className = 'title-input';
+
+      // Time display
+      const timeDisplay = document.createElement('div');
+      timeDisplay.className = 'time';
+      timeDisplay.textContent = '00:00:00.0';
+
+      // Buttons
+      const startStopButton = document.createElement('button');
+      startStopButton.textContent = 'Start';
+
+      const resetButton = document.createElement('button');
+      resetButton.textContent = 'Reset';
+
+      const buttonGroup = document.createElement('div');
+      buttonGroup.className = 'buttons';
+      buttonGroup.appendChild(startStopButton);
+      buttonGroup.appendChild(resetButton);
+
+      // Timer logic
+      let startTime = null;
+      let interval = null;
+      let elapsedBefore = 0;
+
+      function formatTime(elapsed) {
+        const totalMilliseconds = elapsed;
+        const totalSeconds = Math.floor(elapsed / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const tenths = Math.floor((totalMilliseconds % 1000) / 100);
+
+        return (
+          String(hours).padStart(2, '0') + ':' +
+          String(minutes).padStart(2, '0') + ':' +
+          String(seconds).padStart(2, '0') + '.' +
+          tenths
+        );
+      }
+
+      startStopButton.addEventListener('click', () => {
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+          elapsedBefore += Date.now() - startTime;
+          startStopButton.textContent = 'Start';
+        } else {
+          startTime = Date.now();
+          interval = setInterval(() => {
+            const elapsed = Date.now() - startTime + elapsedBefore;
+            timeDisplay.textContent = formatTime(elapsed);
+          }, 100);
+          startStopButton.textContent = 'Stop';
+        }
+      });
+
+      resetButton.addEventListener('click', () => {
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+        elapsedBefore = 0;
+        startTime = null;
+        timeDisplay.textContent = '00:00:00.0';
+        startStopButton.textContent = 'Start';
+      });
+
+      // Assemble the timer
+      timer.appendChild(titleInput);
+      timer.appendChild(timeDisplay);
+      timer.appendChild(buttonGroup);
+      container.appendChild(timer);
+    }
+  </script>
+</body>
+</html>
